@@ -22,11 +22,11 @@ pub(all) type! ParseError {
 ///|
 priv struct Parser {
   pattern : String
-  mut pos : Int
-  mut pos_mark : Int
-  mut group_index : Int
-  mut capture_num : Int
-  capture_name_mapping : Map[String, Int]
+  mut pos : Int32
+  mut pos_mark : Int32
+  mut group_index : Int32
+  mut capture_num : Int32
+  capture_name_mapping : Map[String, Int32]
 }
 
 ///|
@@ -42,37 +42,37 @@ fn Parser::new(pattern : String) -> Parser {
 }
 
 ///|
-fn pos(self : Parser) -> Int {
+fn Parser::pos(self : Parser) -> Int32 {
   self.pos
 }
 
 ///|
-fn Parser::rewind(self : Parser, n : Int) -> Unit {
+fn Parser::rewind(self : Parser, n : Int32) -> Unit {
   self.pos -= n
 }
 
 ///|
-fn Parser::advance(self : Parser, n : Int) -> Unit {
+fn Parser::advance(self : Parser, n : Int32) -> Unit {
   self.pos += n
 }
 
 ///|
-fn mark(self : Parser) -> Unit {
+fn Parser::mark(self : Parser) -> Unit {
   self.pos_mark = self.pos
 }
 
 ///|
-fn restore(self : Parser) -> Unit {
+fn Parser::restore(self : Parser) -> Unit {
   self.pos = self.pos_mark
 }
 
 ///|
-fn more(self : Parser) -> Bool {
+fn Parser::more(self : Parser) -> Bool {
   self.pos < self.pattern.length()
 }
 
 ///|
-fn peek(self : Parser) -> Char {
+fn Parser::peek(self : Parser) -> Char {
   if not(self.more()) {
     abort("index out of bounds")
   }
@@ -80,7 +80,7 @@ fn peek(self : Parser) -> Char {
 }
 
 ///|
-fn peek_is(self : Parser, expected : Char) -> Bool {
+fn Parser::peek_is(self : Parser, expected : Char) -> Bool {
   if not(self.more()) {
     false
   } else {
@@ -89,7 +89,7 @@ fn peek_is(self : Parser, expected : Char) -> Bool {
 }
 
 ///|
-fn check_exist(self : Parser, c : Char) -> Bool {
+fn Parser::check_exist(self : Parser, c : Char) -> Bool {
   self.mark()
   while self.more() {
     if self.peek_is(c) {
@@ -267,7 +267,7 @@ fn parse_loop(self : Parser, target : AstNode) -> AstNode!ParseError {
 }
 
 ///|
-fn parse_loop_range(self : Parser) -> (Int, Int?)!ParseError {
+fn Parser::parse_loop_range(self : Parser) -> (Int32, Int32?) raise ParseError {
   if not(self.more()) {
     raise InvalidLoop(pos=self.pos)
   }
@@ -281,7 +281,7 @@ fn parse_loop_range(self : Parser) -> (Int, Int?)!ParseError {
   if not(self.more()) {
     raise InvalidLoop(pos=self.pos)
   }
-  let max : Int? = if self.peek_is(',') {
+  let max : Int32? = if self.peek_is(',') {
     self.advance(1) // ','
     self.fetch_unsigned_num()
   } else {
@@ -345,7 +345,7 @@ fn parse_group(self : Parser) -> AstNode!ParseError {
 }
 
 ///|
-fn parse_group_name(self : Parser) -> String!ParseError {
+fn Parser::parse_group_name(self : Parser) -> String raise ParseError {
   self.advance(1) // '<'
   let buf = @buffer.new()
   while self.more() && not(self.peek_is('>')) {
@@ -417,7 +417,7 @@ fn parse_class(self : Parser) -> AstNode!ParseError {
 }
 
 ///|
-fn parse_char_class_char(self : Parser) -> Char!ParseError {
+fn Parser::parse_char_class_char(self : Parser) -> Char raise ParseError {
   if not(self.more()) {
     raise ClassMissingBracket(pos=self.pos)
   }
@@ -430,7 +430,7 @@ fn parse_char_class_char(self : Parser) -> Char!ParseError {
 }
 
 ///|
-fn parse_escape(self : Parser) -> AstNode!ParseError {
+fn Parser::parse_escape(self : Parser) -> AstNode raise ParseError {
   if not(self.more()) {
     raise EndPatternAtEscape(pos=self.pos)
   }

@@ -1,23 +1,23 @@
 ///|
 priv struct Program {
-  bytecodes : Array[Int]
+  bytecodes : Array[Int32]
   classes : Array[CharClass]
-  capture_num : Int
-  capture_name_mapping : Map[String, Int]
+  capture_num : Int32
+  capture_name_mapping : Map[String, Int32]
 }
 
 ///|
-fn op_code(self : Program, pos : Int) -> OpCode {
+fn Program::op_code(self : Program, pos : Int32) -> OpCode {
   OpCode::from_bytecode(self.bytecodes[pos])
 }
 
 ///|
-fn Program::operand(self : Program, pos : Int) -> Int {
+fn Program::operand(self : Program, pos : Int32) -> Int32 {
   self.bytecodes[pos]
 }
 
 ///|
-impl Show for Program with output(self, logger) -> Unit {
+impl Show for Program with fn output(self, logger) -> Unit {
   let mut pos = 0
   while pos < self.bytecodes.length() {
     let size = self.output_op(pos, logger)
@@ -27,7 +27,7 @@ impl Show for Program with output(self, logger) -> Unit {
 }
 
 ///|
-fn output_op(self : Program, pos : Int, logger : &Logger) -> Int {
+fn Program::output_op(self : Program, pos : Int32, logger : &Logger) -> Int32 {
   let mut size = 0
   logger.write_string("\{pos} ")
   let opcode = OpCode::from_bytecode(self.bytecodes[pos])

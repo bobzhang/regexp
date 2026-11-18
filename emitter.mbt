@@ -7,49 +7,54 @@ priv enum TraverseStatus {
 ///|
 priv struct Emitter {
   ast : Ast
-  bytecodes : Array[Int]
+  bytecodes : Array[Int32]
   classes : Array[CharClass]
-  stack : Array[Int]
+  stack : Array[Int32]
 }
 
 ///|
 fn Emitter::new(ast : Ast) -> Emitter {
-  { ast, bytecodes: [], classes: [], stack: [] }
+  { ast, bytecodes: [], classes: [], stack: [], }
 }
 
 ///|
-fn push_stack(self : Emitter, val : Int) -> Unit {
+fn Emitter::push_stack(self : Emitter, val : Int32) -> Unit {
   self.stack.push(val)
 }
 
 ///|
-fn pop_stack(self : Emitter) -> Int {
+fn Emitter::pop_stack(self : Emitter) -> Int32 {
   self.stack.unsafe_pop()
 }
 
 ///|
-fn cur_pos(self : Emitter) -> Int {
+fn Emitter::cur_pos(self : Emitter) -> Int32 {
   self.bytecodes.length()
 }
 
 ///|
-fn patch_jump(self : Emitter, offset : Int, dest : Int) -> Unit {
+fn Emitter::patch_jump(self : Emitter, offset : Int32, dest : Int32) -> Unit {
   self.bytecodes[offset + 1] = dest
 }
 
 ///|
-fn emit_0(self : Emitter, op : OpCode) -> Unit {
+fn Emitter::emit_0(self : Emitter, op : OpCode) -> Unit {
   self.bytecodes.push(op.to_bytecode())
 }
 
 ///|
-fn emit_1(self : Emitter, op : OpCode, operand : Int) -> Unit {
+fn Emitter::emit_1(self : Emitter, op : OpCode, operand : Int32) -> Unit {
   self.bytecodes.push(op.to_bytecode())
   self.bytecodes.push(operand)
 }
 
 ///|
-fn emit_2(self : Emitter, op : OpCode, operand1 : Int, operand2 : Int) -> Unit {
+fn Emitter::emit_2(
+  self : Emitter,
+  op : OpCode,
+  operand1 : Int32,
+  operand2 : Int32,
+) -> Unit {
   self.bytecodes.push(op.to_bytecode())
   self.bytecodes.push(operand1)
   self.bytecodes.push(operand2)
@@ -90,11 +95,11 @@ fn emit(self : Emitter) -> Program {
 }
 
 ///|
-fn emit_fragment(
+fn Emitter::emit_fragment(
   self : Emitter,
   node : AstNode,
-  cur_child : Int,
-  status~ : TraverseStatus = BeforeChild
+  cur_child : Int32,
+  status~ : TraverseStatus = BeforeChild,
 ) -> Unit {
   match (node.internal, status) {
     (Empty, _) | (Concatenate, _) => ()

@@ -17,16 +17,16 @@ pub fn compile(pattern : String) -> RegExp! {
 }
 
 ///|
-pub fn pattern(self : RegExp) -> String {
+pub fn RegExp::pattern(self : RegExp) -> String {
   self.pattern
 }
 
 ///|
-pub fn matches(
+pub fn RegExp::matches(
   self : RegExp,
   text : String,
-  start~ : Int = 0,
-  end~ : Int = text.length()
+  start~ : Int32 = 0,
+  end~ : Int32 = text.length(),
 ) -> MatchResult {
   Interpreter::new(self.prog).scan(text, start, end)
 }
