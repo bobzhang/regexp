@@ -1,5 +1,4 @@
 ///|
-#derive(Eq)
 priv struct CharClass {
   neg : Bool
   ranges : Array[Int32]
@@ -7,7 +6,6 @@ priv struct CharClass {
 }
 
 ///|
-#derive(Eq)
 priv enum CharClassCategory {
   Digit
   NotDigit
@@ -50,75 +48,42 @@ fn CharClass::add_category(
 fn CharClass::contains(self : CharClass, char : Int32) -> Bool {
   let result = self.ranges_contains(char) || self.categories_contains(char)
   if self.neg {
-    not(result)
+    !result
   } else {
     result
   }
 }
 
 ///|
-fn ranges_contains(self : CharClass, char : Int) -> Bool {
+fn CharClass::ranges_contains(self : CharClass, char : Int32) -> Bool {
   for i = 0; i < self.ranges.length(); i = i + 2 {
     let low = self.ranges[i]
     let high = self.ranges[i + 1]
     if char >= low && char <= high {
       return true
     }
-  } else {
+  } nobreak {
     return false
   }
 }
 
 ///|
-fn categories_contains(self : CharClass, char : Int) -> Bool {
+fn CharClass::categories_contains(self : CharClass, char : Int32) -> Bool {
   for category in self.categories {
     let res = match category {
       Digit => is_digit(char)
-      NotDigit => not(is_digit(char))
+      NotDigit => !is_digit(char)
       Space => is_whitespace(char)
-      NotSpace => not(is_whitespace(char))
+      NotSpace => !is_whitespace(char)
       Word => is_word_char(char)
-      NotWord => not(is_word_char(char))
+      NotWord => !is_word_char(char)
     }
     if res {
       break true
     }
-  } else {
+  } nobreak {
     false
   }
-}
-
-///|
-impl Show for CharClass with fn output(self, logger) -> Unit {
-  logger.write_char('[')
-  if self.neg {
-    logger.write_char('^')
-  }
-  for i = 0; i < self.ranges.length(); i = i + 2 {
-    let min = self.ranges[i]
-    let max = self.ranges[i + 1]
-    if i > 0 {
-      logger.write_char(',')
-    }
-    if min == max {
-      logger.write_string(min.to_string())
-    } else {
-      logger.write_string(min.to_string())
-      logger.write_char('-')
-      logger.write_string(max.to_string())
-    }
-  }
-  for category in self.categories {
-    match category {
-      Digit => logger.write_string("\\d")
-      NotDigit => logger.write_string("\\D")
-      Space => logger.write_string("\\s")
-      NotSpace => logger.write_string("\\S")
-      Word => logger.write_string("\\w")
-      NotWord => logger.write_string("\\W")
-    }
-  }
-  logger.write_char(']')
 }
 
 ///|

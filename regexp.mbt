@@ -5,15 +5,15 @@ struct RegExp {
 }
 
 ///|
-fn RegExp::new(pattern : String) -> RegExp! {
-  let ast = Parser::new(pattern).parse!()
+fn RegExp::new(pattern : String) -> RegExp raise {
+  let ast = Parser::new(pattern).parse()
   let prog = Emitter::new(ast).emit()
-  { pattern, prog }
+  { pattern, prog, }
 }
 
 ///|
-pub fn compile(pattern : String) -> RegExp! {
-  RegExp::new!(pattern)
+pub fn compile(pattern : String) -> RegExp raise {
+  RegExp::new(pattern)
 }
 
 ///|

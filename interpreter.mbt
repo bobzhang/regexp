@@ -1,5 +1,5 @@
 ///|
-#derive(Show, Eq)
+#derive(Eq)
 priv enum RunningStatus {
   Normal
   Backtracking
@@ -165,10 +165,10 @@ fn Interpreter::scan(
       ""
     } else {
       let (start, end) = r.unwrap()
-      text.substring(start~, end~)
+      text[start:end].to_owned()
     }
   })
-  let named_captures = {}
+  let named_captures : Map[String, String] = Map([])
   for k, v in self.prog.capture_name_mapping {
     named_captures[k] = captures[v]
   }
@@ -176,10 +176,10 @@ fn Interpreter::scan(
 }
 
 ///|
-fn try_match(self : Interpreter, text : String) -> Bool {
+fn Interpreter::try_match(self : Interpreter, text : String) -> Bool {
   self.op_pos = 0
   self.op_code = self.prog.op_code(self.op_pos)
-  for {
+  for ;; {
     let cur_opcode = self.op_code
     let cur_status = self.status
     if self.status == Backtracking {
@@ -224,7 +224,6 @@ fn try_match(self : Interpreter, text : String) -> Bool {
       }
       (SetMark, Backtracking) => {
         let _ = self.run_pop()
-
       }
       (NullMark, Normal) => {
         self.op_push()
@@ -234,7 +233,6 @@ fn try_match(self : Interpreter, text : String) -> Bool {
       }
       (NullMark, Backtracking) => {
         let _ = self.run_pop()
-
       }
       (GetMark, Normal) => {
         self.op_push()
@@ -304,7 +302,6 @@ fn try_match(self : Interpreter, text : String) -> Bool {
       (SetCount, Backtracking) => {
         let _ = self.run_pop()
         let _ = self.run_pop()
-
       }
       (NullCount, Normal) => {
         self.op_push()
@@ -316,7 +313,6 @@ fn try_match(self : Interpreter, text : String) -> Bool {
       (NullCount, Backtracking) => {
         let _ = self.run_pop()
         let _ = self.run_pop()
-
       }
       (BranchCount, Normal) => {
         let mark = self.run_pop()
@@ -441,7 +437,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
             if self.next_char(text) != ch {
               break
             }
-          } else {
+          } nobreak {
             matched = true
           }
         }
@@ -459,7 +455,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
             if self.next_char(text) == ch {
               break
             }
-          } else {
+          } nobreak {
             matched = true
           }
         }
@@ -476,7 +472,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
           matched = false
         } else {
           for i = 0; i < count; i = i + 1 {
-            if not(self.char_in_class(class_idx, self.next_char(text))) {
+            if !self.char_in_class(class_idx, self.next_char(text)) {
               matched = false
               self.rewind()
               break
@@ -491,7 +487,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
       (SingleLoop, Normal) => {
         let ch = self.operand(0)
         let max_count = self.operand(1)
-        let count = @math.minimum(max_count, self.chars_remain())
+        let count = @cmp.minimum(max_count, self.chars_remain())
         let mut i = count
         while i > 0 {
           if self.next_char(text) != ch {
@@ -511,7 +507,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
       (NotSingleLoop, Normal) => {
         let ch = self.operand(0)
         let max_count = self.operand(1)
-        let count = @math.minimum(max_count, self.chars_remain())
+        let count = @cmp.minimum(max_count, self.chars_remain())
         let mut i = count
         while i > 0 {
           if self.next_char(text) == ch {
@@ -530,10 +526,10 @@ fn try_match(self : Interpreter, text : String) -> Bool {
       }
       (ClassLoop, Normal) => {
         let max_count = self.operand(1)
-        let count = @math.minimum(max_count, self.chars_remain())
+        let count = @cmp.minimum(max_count, self.chars_remain())
         let mut i = count
         while i > 0 {
-          if not(self.char_in_class(self.operand(0), self.next_char(text))) {
+          if !self.char_in_class(self.operand(0), self.next_char(text)) {
             self.rewind()
             break
           }
@@ -563,7 +559,7 @@ fn try_match(self : Interpreter, text : String) -> Bool {
       }
       (SingleLazy, Normal) | (NotSingleLazy, Normal) | (ClassLazy, Normal) => {
         let max_count = self.operand(1)
-        let count = @math.minimum(max_count, self.chars_remain())
+        let count = @cmp.minimum(max_count, self.chars_remain())
         if count > 0 {
           self.op_push()
           self.track_push(count - 1)
@@ -620,16 +616,4 @@ fn try_match(self : Interpreter, text : String) -> Bool {
     self.backtrack()
   }
   false
-}
-
-///|
-fn Interpreter::debug_state(self : Interpreter) -> String {
-  let buf = @buffer.new()
-  let _ = self.prog.output_op(self.op_pos, buf)
-  buf.write_char('\n')
-  buf.write_string("text_pos: " + self.text_pos.to_string() + "\n")
-  buf.write_string("op_stack: " + self.op_stack.to_string() + "\n")
-  buf.write_string("track_stack: " + self.track_stack.to_string() + "\n")
-  buf.write_string("run_stack: " + self.run_stack.to_string() + "\n")
-  buf.contents().to_unchecked_string()
 }

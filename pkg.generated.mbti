@@ -1,0 +1,45 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "yj-qin/regexp"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn compile(String) -> RegExp raise
+
+// Errors
+#derive(Eq, @debug.Debug)
+pub(all) suberror ParseError {
+  InternalParserError
+  UnmatchedGroupBegin(pos~ : Int32)
+  UnmatchedGroupEnd(pos~ : Int32)
+  UnmatchedGroupName(pos~ : Int32)
+  EmptyGroupName(pos~ : Int32)
+  EmptyGroup(pos~ : Int32)
+  UnmatchedCharClassEnd(pos~ : Int32)
+  UnspecifiedLoopTarget(pos~ : Int32)
+  InvalidLoop(pos~ : Int32)
+  LoopCountOutOfRange(pos~ : Int32)
+  LoopMaxCountSmallerThanMinCount(pos~ : Int32)
+  EndPatternAtEscape(pos~ : Int32)
+  ClassMissingBracket(pos~ : Int32)
+  GroupMissingParen(pos~ : Int32)
+}
+pub impl Show for ParseError
+
+// Types and methods
+#derive(@debug.Debug)
+type MatchResult
+pub fn MatchResult::captures(Self) -> Array[String]
+pub fn MatchResult::named_captures(Self) -> Map[String, String]
+pub fn MatchResult::success(Self) -> Bool
+pub impl Show for MatchResult
+
+type RegExp
+pub fn RegExp::matches(Self, String, start? : Int32, end? : Int32) -> MatchResult
+pub fn RegExp::pattern(Self) -> String
+
+// Type aliases
+
+// Traits
