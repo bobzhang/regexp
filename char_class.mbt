@@ -1,11 +1,13 @@
 ///|
+#derive(Eq)
 priv struct CharClass {
   neg : Bool
-  ranges : Array[Int]
+  ranges : Array[Int32]
   categories : Array[CharClassCategory]
-} derive(Eq)
+}
 
 ///|
+#derive(Eq)
 priv enum CharClassCategory {
   Digit
   NotDigit
@@ -13,36 +15,39 @@ priv enum CharClassCategory {
   NotSpace
   Word
   NotWord
-} derive(Eq)
+}
 
 ///|
 fn CharClass::new(
   neg~ : Bool = false,
-  ranges~ : Array[Int] = [],
-  categories~ : Array[CharClassCategory] = []
+  ranges~ : Array[Int32] = [],
+  categories~ : Array[CharClassCategory] = [],
 ) -> CharClass {
-  { neg, ranges, categories }
+  { neg, ranges, categories, }
 }
 
 ///|
-fn add_single(self : CharClass, char : Char) -> Unit {
+fn CharClass::add_single(self : CharClass, char : Char) -> Unit {
   self.ranges.push(char.to_int())
   self.ranges.push(char.to_int())
 }
 
 ///|
-fn add_range(self : CharClass, low : Char, high : Char) -> Unit {
+fn CharClass::add_range(self : CharClass, low : Char, high : Char) -> Unit {
   self.ranges.push(low.to_int())
   self.ranges.push(high.to_int())
 }
 
 ///|
-fn add_category(self : CharClass, category : CharClassCategory) -> Unit {
+fn CharClass::add_category(
+  self : CharClass,
+  category : CharClassCategory,
+) -> Unit {
   self.categories.push(category)
 }
 
 ///|
-fn contains(self : CharClass, char : Int) -> Bool {
+fn CharClass::contains(self : CharClass, char : Int32) -> Bool {
   let result = self.ranges_contains(char) || self.categories_contains(char)
   if self.neg {
     not(result)
@@ -84,7 +89,7 @@ fn categories_contains(self : CharClass, char : Int) -> Bool {
 }
 
 ///|
-impl Show for CharClass with output(self, logger) -> Unit {
+impl Show for CharClass with fn output(self, logger) -> Unit {
   logger.write_char('[')
   if self.neg {
     logger.write_char('^')
@@ -117,7 +122,7 @@ impl Show for CharClass with output(self, logger) -> Unit {
 }
 
 ///|
-fn is_whitespace(char : Int) -> Bool {
+fn is_whitespace(char : Int32) -> Bool {
   return char == ' '.to_int() ||
     char == '\t'.to_int() ||
     char == '\n'.to_int() ||
@@ -142,7 +147,7 @@ fn is_whitespace(char : Int) -> Bool {
 }
 
 ///|
-fn is_word_char(char : Int) -> Bool {
+fn is_word_char(char : Int32) -> Bool {
   return (char >= 'a'.to_int() && char <= 'z'.to_int()) ||
     (char >= 'A'.to_int() && char <= 'Z'.to_int()) ||
     (char >= '0'.to_int() && char <= '9'.to_int()) ||
@@ -150,6 +155,6 @@ fn is_word_char(char : Int) -> Bool {
 }
 
 ///|
-fn is_digit(char : Int) -> Bool {
+fn is_digit(char : Int32) -> Bool {
   return char >= '0'.to_int() && char <= '9'.to_int()
 }

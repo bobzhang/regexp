@@ -1,4 +1,5 @@
 ///|
+#derive(Show)
 priv enum OpCode {
   Nop
   Stop
@@ -30,10 +31,10 @@ priv enum OpCode {
   SetMark
   CaptureMark // capture_index
   GetMark
-} derive(Show)
+}
 
 ///|
-fn to_bytecode(self : OpCode) -> Int {
+fn OpCode::to_bytecode(self : OpCode) -> Int32 {
   match self {
     Nop => -1
     Stop => 0
@@ -67,7 +68,7 @@ fn to_bytecode(self : OpCode) -> Int {
 }
 
 ///|
-fn OpCode::from_bytecode(bytecode : Int) -> OpCode {
+fn OpCode::from_bytecode(bytecode : Int32) -> OpCode {
   match bytecode {
     0 => Stop
     1 => Single
@@ -100,8 +101,9 @@ fn OpCode::from_bytecode(bytecode : Int) -> OpCode {
   }
 }
 
-///| Returns true if this operation needs to backtrack.
-fn need_backtrack(self : OpCode) -> Bool {
+///|
+/// Returns true if this operation needs to backtrack.
+fn OpCode::need_backtrack(self : OpCode) -> Bool {
   match self {
     SingleLoop
     | SingleLazy

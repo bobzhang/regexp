@@ -1,4 +1,5 @@
 ///|
+#derive(Eq)
 priv enum AstNodeInternal {
   // Leave nodes of the AST.
   Empty
@@ -6,23 +7,23 @@ priv enum AstNodeInternal {
   NotSingle(char~ : Char)
   Class(class~ : CharClass)
   // Multi(~str : String)
-  SingleLoop(char~ : Char, min~ : Int, max~ : Int?, greedy~ : Bool)
-  NotSingleLoop(char~ : Char, min~ : Int, max~ : Int?, greedy~ : Bool)
-  ClassLoop(class~ : CharClass, min~ : Int, max~ : Int?, greedy~ : Bool)
+  SingleLoop(char~ : Char, min~ : Int32, max~ : Int32?, greedy~ : Bool)
+  NotSingleLoop(char~ : Char, min~ : Int32, max~ : Int32?, greedy~ : Bool)
+  ClassLoop(class~ : CharClass, min~ : Int32, max~ : Int32?, greedy~ : Bool)
   // Backreference(~index : Int)
   BeginOfInput
   EndOfInput
   // Branch nodes of the AST that have at least one child.
   Alternate
   Concatenate
-  Loop(min~ : Int, max~ : Int?, greedy~ : Bool)
-  Capture(index~ : Int)
+  Loop(min~ : Int32, max~ : Int32?, greedy~ : Bool)
+  Capture(index~ : Int32)
   Group
-} derive(Eq)
+}
 
 ///|
-fn to_string(self : AstNodeInternal) -> String {
-  fn range_str(min : Int, max : Int?) {
+fn AstNodeInternal::to_string(self : AstNodeInternal) -> String {
+  fn range_str(min : Int32, max : Int32?) {
     match max {
       Some(max) => if min == max { "{\{min}} " } else { "{\{min},\{max}} " }
       None => "{\{min},} "
@@ -79,24 +80,24 @@ priv struct AstNode {
 fn AstNode::new(
   internal : AstNodeInternal,
   parent~ : AstNode? = None,
-  children~ : Array[AstNode] = []
+  children~ : Array[AstNode] = [],
 ) -> AstNode {
-  { internal, parent, children }
+  { internal, parent, children, }
 }
 
 ///|
-fn add_child(self : AstNode, child : AstNode) -> Unit {
+fn AstNode::add_child(self : AstNode, child : AstNode) -> Unit {
   child.parent = Some(self)
   self.children.push(child)
 }
 
 ///|
-fn get_child(self : AstNode, idx : Int) -> AstNode {
+fn AstNode::get_child(self : AstNode, idx : Int32) -> AstNode {
   self.children[idx]
 }
 
 ///|
-fn child_num(self : AstNode) -> Int {
+fn AstNode::child_num(self : AstNode) -> Int32 {
   self.children.length()
 }
 
@@ -133,12 +134,12 @@ impl Show for AstNode with output(self, logger) -> Unit {
 ///|
 priv struct Ast {
   root : AstNode
-  capture_num : Int
-  capture_name_mapping : Map[String, Int]
+  capture_num : Int32
+  capture_name_mapping : Map[String, Int32]
 }
 
 ///|
-impl Show for Ast with output(self, logger) {
+impl Show for Ast with fn output(self, logger) {
   logger.write_char('\n')
   logger.write_string("Number of captures: " + self.capture_num.to_string())
   logger.write_char('\n')

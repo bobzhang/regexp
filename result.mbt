@@ -1,17 +1,18 @@
 ///|
+#derive(Show)
 struct MatchResult {
   success : Bool
   captures : Array[String]
   named_captures : Map[String, String]
-} derive(Show)
+}
 
 ///|
-pub fn success(self : MatchResult) -> Bool {
+pub fn MatchResult::success(self : MatchResult) -> Bool {
   self.success
 }
 
 ///|
-pub fn captures(self : MatchResult) -> Array[String] {
+pub fn MatchResult::captures(self : MatchResult) -> Array[String] {
   self.captures
 }
 
