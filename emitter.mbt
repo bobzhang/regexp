@@ -61,11 +61,11 @@ fn Emitter::emit_2(
 }
 
 ///|
-fn emit(self : Emitter) -> Program {
+fn Emitter::emit(self : Emitter) -> Program {
   self.emit_1(BranchLazy, 0)
   let mut cur_node = self.ast.root
   let mut cur_child = 0
-  for {
+  for ;; {
     let cur_child_num = cur_node.child_num()
     if cur_child_num == 0 {
       self.emit_fragment(cur_node, 0)
@@ -120,7 +120,7 @@ fn Emitter::emit_fragment(
         }
       }
     (Loop(min~, max~, ..), BeforeChild) => {
-      if min > 1 || not(max.is_empty()) {
+      if min > 1 || !(max is None) {
         if min == 0 {
           self.emit_1(NullCount, 0)
         } else {
@@ -138,10 +138,10 @@ fn Emitter::emit_fragment(
     }
     (Loop(min~, max~, greedy~), AfterChild) => {
       let jump_dest = self.cur_pos()
-      if min > 1 || not(max.is_empty()) {
+      if min > 1 || !(max is None) {
         let opcode : OpCode = if greedy { BranchCount } else { BranchCountLazy }
-        let count = if max.is_empty() {
-          @int.max_value
+        let count = if max is None {
+          @int.MAX_VALUE
         } else {
           max.unwrap() - min
         }
@@ -172,7 +172,7 @@ fn Emitter::emit_fragment(
       let opcode : OpCode = if greedy { SingleLoop } else { SingleLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, opd, max - min) }
-        None => self.emit_2(opcode, opd, @int.max_value)
+        None => self.emit_2(opcode, opd, @int.MAX_VALUE)
       }
     }
     (NotSingleLoop(char~, min~, max~, greedy~), _) => {
@@ -183,7 +183,7 @@ fn Emitter::emit_fragment(
       let opcode : OpCode = if greedy { NotSingleLoop } else { NotSingleLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, opd, max - min) }
-        None => self.emit_2(opcode, opd, @int.max_value)
+        None => self.emit_2(opcode, opd, @int.MAX_VALUE)
       }
     }
     (ClassLoop(class~, min~, max~, greedy~), _) => {
@@ -195,7 +195,7 @@ fn Emitter::emit_fragment(
       let opcode : OpCode = if greedy { ClassLoop } else { ClassLazy }
       match max {
         Some(max) => if max != min { self.emit_2(opcode, idx, max - min) }
-        None => self.emit_2(opcode, idx, @int.max_value)
+        None => self.emit_2(opcode, idx, @int.MAX_VALUE)
       }
     }
     (BeginOfInput, _) => self.emit_0(BeginOfInput)

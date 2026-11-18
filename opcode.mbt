@@ -1,5 +1,4 @@
 ///|
-#derive(Show)
 priv enum OpCode {
   Nop
   Stop
@@ -98,29 +97,5 @@ fn OpCode::from_bytecode(bytecode : Int32) -> OpCode {
     25 => CaptureMark
     26 => GetMark
     _ => panic()
-  }
-}
-
-///|
-/// Returns true if this operation needs to backtrack.
-fn OpCode::need_backtrack(self : OpCode) -> Bool {
-  match self {
-    SingleLoop
-    | SingleLazy
-    | NotSingleLoop
-    | NotSingleLazy
-    | ClassLoop
-    | ClassLazy
-    | BranchLazy
-    | BranchMark
-    | BranchMarkLazy
-    | NullCount
-    | SetCount
-    | BranchCount
-    | BranchCountLazy
-    | SetMark
-    | CaptureMark
-    | Goto => true
-    _ => false
   }
 }
